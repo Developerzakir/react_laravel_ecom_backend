@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\TempImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductController extends Controller
 {
@@ -52,6 +56,40 @@ class ProductController extends Controller
         $product->is_featured = $request->is_featured;
         $product->barcode = $request->barcode;
         $product->save();
+
+
+           //save the product image
+
+           if(!empty($request->gallery)){
+            foreach($request->gallery as $key => $tempImageId){
+                $tempImage  = TempImage::find($tempImageId);
+
+                //Large Thumbnail
+                $extArray = explode('.',$tempImage->name);
+                $ext = end($extArray);
+                $imageName = $product->id.'-'.time().'.'.$ext;
+
+                $manager = new ImageManager(Driver::class);
+                $img     = $manager->read(public_path('uploads/temp/'.$tempImage->name));
+                // $img->scaleDown(1200);
+                $img = $img->scale(width: 1200);
+                $img->save(public_path('uploads/products/large/'.$imageName));
+
+                //Small Thumbnail
+                $manager = new ImageManager(Driver::class);
+                $img     = $manager->read(public_path('uploads/temp/'.$tempImage->name));
+                // $img->coverDown(400,460);
+                $img = $img->cover(400, 460);
+                $img->save(public_path('uploads/products/small/'.$imageName));
+
+                if($key == 0){
+                    $product->image = $imageName;
+                    $product->save();
+                }
+
+            }
+          }
+
 
        
             return response()->json([
@@ -121,6 +159,7 @@ class ProductController extends Controller
         $product->barcode = $request->barcode;
         $product->save();
 
+     
        
             return response()->json([
                 'status'=>200,
