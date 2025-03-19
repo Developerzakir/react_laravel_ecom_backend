@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\TempImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -81,6 +82,13 @@ class ProductController extends Controller
                 // $img->coverDown(400,460);
                 $img = $img->cover(400, 460);
                 $img->save(public_path('uploads/products/small/'.$imageName));
+
+                //ProductImage
+                $productImage = new ProductImage();
+                $productImage->image = $imageName;
+                $productImage->product_id = $product->id;
+                $productImage->save();
+
 
                 if($key == 0){
                     $product->image = $imageName;
