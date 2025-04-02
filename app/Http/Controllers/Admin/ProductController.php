@@ -197,4 +197,47 @@ class ProductController extends Controller
         ],200);
 
     } //End method
+
+    public function saveProductImage(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'image' =>'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status'=>400,
+                'errors'=>$validator->errors(),
+            ],400);
+        }
+
+        $image = $request->file('image');
+        $imageName = $request->product_id.'-'.time().'.'.$image->extension();
+
+        //large image generate
+        $manager = new ImageManager(Driver::class);
+        $img     = $manager->read($image->getPathname());
+        $img = $img->scale(width: 1200);
+        $img->save(public_path('uploads/products/large/'.$imageName));
+
+        //Small Thumbnail
+        $manager = new ImageManager(Driver::class);
+        $img     = $manager->read($image->getPathname());
+        $img = $img->cover(400, 460);
+        $img->save(public_path('uploads/products/small/'.$imageName));
+
+        //insert image in product table during update
+        $productImage = new ProductImage();
+        $productImage->image = $imageName;
+        $productImage->product_id = $request->product_id;
+        $productImage->save();
+
+
+        return response()->json([
+            'status'=>200,
+            'data'=> $productImage
+        ],200);
+
+
+    } //End method
 }

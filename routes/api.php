@@ -33,4 +33,7 @@ Route::group(['middleware'=>'auth:sanctum'], function(){
    Route::resource('products',ProductController::class);
 
    Route::post('temp-images',[TempImageController::class,'store']);
+   
+   //route for new image upload before product update
+   Route::post('save-product-images',[ProductController::class,'saveProductImage']);
 });
