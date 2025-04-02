@@ -36,4 +36,7 @@ Route::group(['middleware'=>'auth:sanctum'], function(){
    
    //route for new image upload before product update
    Route::post('save-product-images',[ProductController::class,'saveProductImage']);
+   
+   //product default image route
+   Route::post('change-product-default-images',[ProductController::class,'updateDefaultImage']);
 });

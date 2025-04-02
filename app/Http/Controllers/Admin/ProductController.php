@@ -240,4 +240,17 @@ class ProductController extends Controller
 
 
     } //End method
+
+    public function updateDefaultImage(Request $request)
+    {
+        $product = Product::find($request->product_id);
+        $product->image = $request->image;
+        $product->save();
+
+        return response()->json([
+            'status'=>200,
+            'message'=> "Product Default Image change successfully!",
+        ],200);
+
+    } //End method
 }
