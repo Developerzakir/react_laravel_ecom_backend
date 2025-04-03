@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::orderBy('created_at','DESC')
-        ->with('product_images')
+        ->with('product_images','product_sizes')
         ->get();
         return response()->json([
             'status' =>200,
@@ -113,7 +113,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with('product_images')->find($id);
+        $product = Product::with('product_images','product_sizes')->find($id);
 
         if($product == null){
             return response()->json([
@@ -122,9 +122,12 @@ class ProductController extends Controller
             ],404);
         }
 
+        $productSizes = $product->product_sizes()->pluck('size_id');
+
         return response()->json([
             'status'=>200,
             'data'=>$product,
+            'productSizes'=>$productSizes,
         ],200);
 
     } //End method
@@ -173,7 +176,7 @@ class ProductController extends Controller
 
         //size update
         if(!empty($request->sizes)){
-            
+
             ProductSize::where('product_id', $product->id)->delete();
             foreach($request->sizes as $sizeId){
                 $productSize = new ProductSize();
