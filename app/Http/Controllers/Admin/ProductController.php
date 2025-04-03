@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductSize;
 use App\Models\TempImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -168,6 +169,19 @@ class ProductController extends Controller
         $product->is_featured = $request->is_featured;
         $product->barcode = $request->barcode;
         $product->save();
+
+
+        //size update
+        if(!empty($request->sizes)){
+            
+            ProductSize::where('product_id', $product->id)->delete();
+            foreach($request->sizes as $sizeId){
+                $productSize = new ProductSize();
+                $productSize->size_id = $sizeId;
+                $productSize->product_id = $product->id;
+                $productSize->save();
+            }
+        }
 
      
        
